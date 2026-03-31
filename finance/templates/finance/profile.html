@@ -1,0 +1,514 @@
+{% extends "finance/base.html" %}
+{% block content %}
+
+<style>
+    .profile-shell {
+        display: grid;
+        gap: 24px;
+    }
+
+    .profile-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.9fr);
+        gap: 22px;
+        align-items: stretch;
+    }
+
+    .profile-banner {
+        position: relative;
+        overflow: hidden;
+        padding: 30px;
+        border-radius: 28px;
+        background:
+            radial-gradient(circle at top right, rgba(56, 189, 248, 0.24), transparent 24%),
+            radial-gradient(circle at bottom left, rgba(34, 197, 94, 0.18), transparent 28%),
+            linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.92));
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        box-shadow: 0 20px 52px rgba(2, 6, 23, 0.38);
+    }
+
+    .profile-kicker {
+        margin-bottom: 12px;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: #7dd3fc;
+    }
+
+    .profile-main {
+        display: flex;
+        gap: 18px;
+        align-items: center;
+    }
+
+    .avatar-big {
+        width: 92px;
+        height: 92px;
+        border-radius: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 36px;
+        font-weight: 800;
+        color: #eff6ff;
+        background: linear-gradient(135deg, #0ea5e9, #2563eb);
+        box-shadow: 0 16px 30px rgba(37, 99, 235, 0.28);
+    }
+
+    .avatar-big img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 26px;
+    }
+
+    .profile-name {
+        margin: 0;
+        font-size: 34px;
+        font-weight: 800;
+        color: #f8fafc;
+    }
+
+    .profile-email {
+        margin: 8px 0 0;
+        color: #cbd5e1;
+        font-size: 15px;
+    }
+
+    .profile-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 16px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(15, 118, 110, 0.18);
+        border: 1px solid rgba(45, 212, 191, 0.2);
+        color: #99f6e4;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .profile-status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #2dd4bf;
+        box-shadow: 0 0 14px rgba(45, 212, 191, 0.9);
+    }
+
+    .profile-copy {
+        margin-top: 18px;
+        max-width: 560px;
+        color: #94a3b8;
+        line-height: 1.7;
+    }
+
+    .profile-stats {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 18px;
+    }
+
+    .stat-card {
+        position: relative;
+        overflow: hidden;
+        padding: 22px;
+        border-radius: 22px;
+        background: rgba(15, 23, 42, 0.88);
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        box-shadow: 0 16px 32px rgba(2, 6, 23, 0.24);
+    }
+
+    .stat-card::after {
+        content: "";
+        position: absolute;
+        inset: auto -20px -40px auto;
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        opacity: 0.16;
+        background: currentColor;
+    }
+
+    .stat-card small {
+        display: block;
+        margin-bottom: 10px;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #94a3b8;
+    }
+
+    .stat-card h3 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 800;
+        color: #f8fafc;
+    }
+
+    .stat-volume {
+        color: #facc15;
+    }
+
+    .profile-panels {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+        gap: 22px;
+    }
+
+    .panel-card {
+        padding: 24px;
+        border-radius: 24px;
+        background: rgba(15, 23, 42, 0.86);
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        box-shadow: 0 16px 36px rgba(2, 6, 23, 0.26);
+    }
+
+    .panel-title {
+        margin: 0 0 10px;
+        font-size: 22px;
+        color: #f8fafc;
+    }
+
+    .panel-copy {
+        margin: 0 0 22px;
+        color: #94a3b8;
+        line-height: 1.7;
+    }
+
+    .identity-list {
+        display: grid;
+        gap: 14px;
+    }
+
+    .identity-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 0;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .identity-row:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .identity-label {
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 12px;
+    }
+
+    .identity-value {
+        color: #f8fafc;
+        font-weight: 600;
+        text-align: right;
+    }
+
+    .action-stack {
+        display: grid;
+        gap: 14px;
+    }
+
+    .avatar-upload-card {
+        margin-top: 18px;
+        padding: 18px;
+        border-radius: 18px;
+        background: rgba(30, 41, 59, 0.58);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .profile-hero .avatar-upload-card {
+        margin-top: 0;
+        height: 100%;
+    }
+
+    .avatar-upload-card h3 {
+        margin: 0 0 8px;
+        font-size: 18px;
+        color: #f8fafc;
+    }
+
+    .avatar-upload-card p {
+        margin: 0 0 14px;
+        color: #94a3b8;
+        line-height: 1.6;
+    }
+
+    .avatar-upload-card input[type="file"] {
+        width: 100%;
+        margin-bottom: 12px;
+        padding: 12px;
+        border-radius: 14px;
+        background: rgba(2, 6, 23, 0.88);
+        color: #e5e7eb;
+        border: 1px solid rgba(148, 163, 184, 0.16);
+    }
+
+    .upload-btn {
+        width: 100%;
+        padding: 12px 16px;
+        border: none;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #0ea5e9, #2563eb);
+        color: #eff6ff;
+        font-weight: 700;
+    }
+
+    .avatar-error {
+        margin-bottom: 12px;
+        padding: 12px 14px;
+        border-radius: 12px;
+        background: rgba(127, 29, 29, 0.35);
+        border: 1px solid rgba(248, 113, 113, 0.28);
+        color: #fecaca;
+    }
+
+    .budget-card {
+        margin-top: 18px;
+        padding: 18px;
+        border-radius: 18px;
+        background: rgba(30, 41, 59, 0.58);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .budget-card h3 {
+        margin: 0 0 8px;
+        font-size: 18px;
+        color: #f8fafc;
+    }
+
+    .budget-card p {
+        margin: 0 0 14px;
+        color: #94a3b8;
+        line-height: 1.6;
+    }
+
+    .budget-card input {
+        width: 100%;
+        margin-bottom: 12px;
+        padding: 12px;
+        border-radius: 14px;
+        background: rgba(2, 6, 23, 0.88);
+        color: #e5e7eb;
+        border: 1px solid rgba(148, 163, 184, 0.16);
+    }
+
+    .budget-status {
+        margin-top: 18px;
+        padding: 16px;
+        border-radius: 16px;
+        border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .budget-status.safe {
+        background: rgba(20, 83, 45, 0.35);
+    }
+
+    .budget-status.warning {
+        background: rgba(133, 77, 14, 0.35);
+    }
+
+    .budget-status.danger {
+        background: rgba(127, 29, 29, 0.4);
+    }
+
+    .budget-status strong {
+        display: block;
+        margin-bottom: 6px;
+        color: #f8fafc;
+    }
+
+    .budget-status span {
+        color: #dbeafe;
+        line-height: 1.6;
+    }
+
+    .action-link,
+    .action-stack .logout-btn {
+        width: 100%;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        padding: 14px 18px;
+        border-radius: 16px;
+        text-decoration: none;
+        font-weight: 700;
+        border: none;
+    }
+
+    .action-link {
+        color: #eff6ff;
+        background: linear-gradient(135deg, #0ea5e9, #2563eb);
+        box-shadow: 0 16px 30px rgba(37, 99, 235, 0.24);
+    }
+
+    .action-stack .logout-btn {
+        margin-top: 0;
+        background: linear-gradient(135deg, #ef4444, #b91c1c);
+        box-shadow: 0 16px 30px rgba(185, 28, 28, 0.22);
+    }
+
+    .footer-note {
+        text-align: center;
+        color: #64748b;
+        font-size: 13px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    @media (max-width: 992px) {
+        .profile-hero,
+        .profile-panels,
+        .profile-stats {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .profile-main {
+            flex-direction: column;
+            align-items: start;
+        }
+
+        .profile-name {
+            font-size: 28px;
+        }
+
+        .identity-row {
+            flex-direction: column;
+        }
+
+        .identity-value {
+            text-align: left;
+        }
+    }
+</style>
+
+<div class="profile-shell">
+    <section class="profile-hero">
+        <article class="profile-banner">
+            <div class="profile-kicker">Profile Overview</div>
+
+            <div class="profile-main">
+                <div class="avatar-big">
+                    {% if user_profile.avatar %}
+                    <img src="{{ user_profile.avatar.url }}" alt="{{ request.user.username }} avatar">
+                    {% else %}
+                    {{ request.user.username|first|upper }}
+                    {% endif %}
+                </div>
+
+                <div>
+                    <h1 class="profile-name">{{ request.user.username }}</h1>
+                    <p class="profile-email">{{ request.user.email }}</p>
+
+                    <div class="profile-status">
+                        <span class="profile-status-dot"></span>
+                        Account Active
+                    </div>
+                </div>
+            </div>
+
+            <p class="profile-copy">
+                Your account overview for {% now "F Y" %}. Manage profile details, avatar, and budget settings in one place.
+            </p>
+        </article>
+
+        <article class="avatar-upload-card">
+            <h3>Avatar</h3>
+            <p>Upload a profile photo to personalize your account.</p>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="avatar">
+                {% if avatar_form.avatar.errors %}
+                <div class="avatar-error">{{ avatar_form.avatar.errors|join:", " }}</div>
+                {% endif %}
+                {{ avatar_form.avatar }}
+                <button type="submit" class="upload-btn">Save Avatar</button>
+            </form>
+        </article>
+
+    </section>
+
+    <section class="profile-stats">
+        <article class="stat-card stat-volume">
+            <small>Total Transactions</small>
+            <h3>{{ total_transactions }}</h3>
+        </article>
+    </section>
+
+    <section class="profile-panels">
+        <article class="panel-card">
+            <h2 class="panel-title">Profile Details</h2>
+            <p class="panel-copy">
+                A quick summary of the personal details currently linked to your account.
+            </p>
+
+            <div class="identity-list">
+                <div class="identity-row">
+                    <span class="identity-label">Username</span>
+                    <span class="identity-value">{{ request.user.username }}</span>
+                </div>
+                <div class="identity-row">
+                    <span class="identity-label">Email</span>
+                    <span class="identity-value">{{ request.user.email }}</span>
+                </div>
+                <div class="identity-row">
+                    <span class="identity-label">Current Month</span>
+                    <span class="identity-value">{% now "F Y" %}</span>
+                </div>
+                <div class="identity-row">
+                    <span class="identity-label">Monthly Transactions</span>
+                    <span class="identity-value">{{ total_transactions }}</span>
+                </div>
+            </div>
+        </article>
+
+        <article class="panel-card">
+            <h2 class="panel-title">Account Actions</h2>
+            <p class="panel-copy">
+                Update your account access settings and personalize your profile.
+            </p>
+
+            <div class="budget-card">
+                <h3>Monthly Budget</h3>
+                <p>Set a monthly spending limit to receive budget alerts.</p>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="budget">
+                    {{ budget_form.monthly_budget }}
+                    <button type="submit" class="upload-btn">Save Budget</button>
+                </form>
+
+                {% if budget_alert %}
+                <div class="budget-status {{ budget_alert.status }}">
+                    <strong>{{ budget_alert.title }}</strong>
+                    <span>{{ budget_alert.message }} Budget: &#8377;{{ budget_alert.budget }}, spent: &#8377;{{ budget_alert.expense }}.</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="action-stack">
+                <a href="{% url 'password_change' %}" class="action-link">Change Password</a>
+
+                <form action="{% url 'logout' %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-btn">Logout</button>
+                </form>
+            </div>
+
+        </article>
+    </section>
+
+    <div class="footer-note">FinTrack profile summary</div>
+</div>
+
+{% endblock %}

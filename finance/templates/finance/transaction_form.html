@@ -1,0 +1,309 @@
+{% extends 'finance/base.html' %}
+{% block title %}Add Transaction{% endblock %}
+
+{% block content %}
+
+<style>
+    .transaction-form-shell {
+        display: grid;
+        gap: 24px;
+        max-width: 920px;
+        margin: 0 auto;
+    }
+
+    .transaction-form-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 22px 24px;
+        border-radius: 24px;
+        background:
+            linear-gradient(135deg, rgba(15, 23, 42, 0.84), rgba(30, 41, 59, 0.7)),
+            url("https://images.unsplash.com/photo-1554224154-22dec7ec8818?auto=format&fit=crop&w=1400&q=80") center/cover,
+            radial-gradient(circle at top right, rgba(14, 165, 233, 0.24), transparent 26%),
+            linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.9));
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        box-shadow: 0 18px 45px rgba(2, 6, 23, 0.35);
+    }
+
+    .transaction-form-kicker {
+        margin-bottom: 8px;
+        font-size: 12px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #7dd3fc;
+    }
+
+    .transaction-form-title {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+        color: #f8fafc;
+    }
+
+    .transaction-form-subtitle {
+        margin: 10px 0 0;
+        max-width: 640px;
+        line-height: 1.6;
+        color: #94a3b8;
+    }
+
+    .transaction-form-card {
+        padding: 22px;
+        border-radius: 22px;
+        background: rgba(15, 23, 42, 0.86);
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        box-shadow: 0 18px 45px rgba(2, 6, 23, 0.28);
+    }
+
+    .transaction-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .form-panel {
+        padding: 14px;
+        border-radius: 18px;
+        background: rgba(30, 41, 59, 0.6);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .form-panel.full {
+        grid-column: 1 / -1;
+    }
+
+    .field-label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: #cbd5e1;
+    }
+
+    .form-panel input,
+    .form-panel select,
+    .form-panel textarea {
+        width: 100%;
+        border-radius: 16px;
+        padding: 11px 14px;
+        background: rgba(2, 6, 23, 0.88);
+        color: #f8fafc;
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        outline: none;
+        box-shadow: none;
+        color-scheme: dark;
+    }
+
+    .form-panel input:focus,
+    .form-panel select:focus,
+    .form-panel textarea:focus {
+        border-color: rgba(56, 189, 248, 0.75);
+        box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.14);
+    }
+
+    .form-panel input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: brightness(0) invert(1);
+        opacity: 1;
+        cursor: pointer;
+    }
+
+    .amount-wrap {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 4px 8px 4px 12px;
+        border-radius: 16px;
+        background: rgba(2, 6, 23, 0.88);
+        border: 1px solid rgba(148, 163, 184, 0.16);
+    }
+
+    .amount-wrap span {
+        font-size: 20px;
+        font-weight: 700;
+        color: #7dd3fc;
+    }
+
+    .amount-wrap input {
+        border: none;
+        background: transparent;
+        padding-left: 0;
+        box-shadow: none;
+    }
+
+    .amount-wrap:focus-within {
+        border-color: rgba(56, 189, 248, 0.75);
+        box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.14);
+    }
+
+    .helper-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 14px;
+        margin-bottom: 18px;
+    }
+
+    .photo-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        margin-bottom: 18px;
+    }
+
+    .photo-card {
+        min-height: 150px;
+        border-radius: 20px;
+        overflow: hidden;
+        position: relative;
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        box-shadow: 0 16px 32px rgba(2, 6, 23, 0.22);
+        background-size: cover;
+        background-position: center;
+    }
+
+    .photo-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.12), rgba(15, 23, 42, 0.82));
+    }
+
+    .photo-card span {
+        position: absolute;
+        left: 16px;
+        bottom: 16px;
+        z-index: 1;
+        color: #f8fafc;
+        font-weight: 700;
+    }
+
+    .helper-card {
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: rgba(30, 41, 59, 0.58);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .helper-card strong {
+        display: block;
+        margin-bottom: 6px;
+        color: #f8fafc;
+    }
+
+    .helper-card p {
+        margin: 0;
+        color: #94a3b8;
+        line-height: 1.5;
+    }
+
+    .save-btn {
+        margin-top: 18px;
+        border: none;
+        border-radius: 16px;
+        padding: 12px 18px;
+        font-weight: 700;
+        color: #eff6ff;
+        background: linear-gradient(135deg, #0284c7, #0f766e);
+        box-shadow: 0 16px 28px rgba(14, 116, 144, 0.28);
+    }
+
+    .error-list {
+        margin: 0 0 18px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: rgba(127, 29, 29, 0.35);
+        border: 1px solid rgba(248, 113, 113, 0.28);
+        color: #fecaca;
+    }
+
+    @media (max-width: 768px) {
+        .transaction-form-title {
+            font-size: 24px;
+        }
+
+        .transaction-form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-panel.full {
+            grid-column: auto;
+        }
+
+        .photo-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="transaction-form-shell">
+    <section class="transaction-form-hero">
+        <div class="transaction-form-kicker">New Entry</div>
+        <h1 class="transaction-form-title">Add a Transaction</h1>
+        <p class="transaction-form-subtitle">
+            Capture each income and expense in a cleaner format so your dashboard and reports stay useful.
+        </p>
+    </section>
+
+    <section class="transaction-form-card">
+        <div class="photo-grid">
+            <article class="photo-card" style="background-image: url('https://images.unsplash.com/photo-1579621970795-87facc2f976d?auto=format&fit=crop&w=1200&q=80');">
+                <span>Track daily expenses</span>
+            </article>
+            <article class="photo-card" style="background-image: url('https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=1200&q=80');">
+                <span>Capture every income</span>
+            </article>
+        </div>
+
+        <div class="helper-grid">
+            <article class="helper-card">
+                <strong>Income</strong>
+                <p>Use this for salary, freelance work, refunds, or any money coming in.</p>
+            </article>
+            <article class="helper-card">
+                <strong>Category</strong>
+                <p>Group transactions with labels like food, travel, rent, shopping, or salary.</p>
+            </article>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            {% if form.errors %}
+            <div class="error-list">
+                Please fix the highlighted fields and submit the form again.
+            </div>
+            {% endif %}
+
+            <div class="transaction-form-grid">
+                <div class="form-panel">
+                    <label class="field-label">Transaction Type</label>
+                    {{ form.transaction_type }}
+                </div>
+
+                <div class="form-panel">
+                    <label class="field-label">Date</label>
+                    {{ form.date }}
+                </div>
+
+                <div class="form-panel full">
+                    <label class="field-label">Category</label>
+                    {{ form.category }}
+                </div>
+
+                <div class="form-panel">
+                    <label class="field-label">Amount</label>
+                    <div class="amount-wrap">
+                        <span>&#8377;</span>
+                        {{ form.amount }}
+                    </div>
+                </div>
+
+            </div>
+
+            <button type="submit" class="save-btn">Save Transaction</button>
+        </form>
+    </section>
+</div>
+
+{% endblock %}

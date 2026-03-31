@@ -1,0 +1,537 @@
+{% extends "finance/base.html" %}
+{% block content %}
+{% load static %}
+
+<style>
+    .dashboard-shell {
+        display: grid;
+        gap: 24px;
+    }
+
+    .dashboard-hero {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 22px;
+    }
+
+    .hero-banner {
+        position: relative;
+        overflow: hidden;
+        min-height: 320px;
+        border-radius: 30px;
+        background:
+            linear-gradient(135deg, rgba(2, 6, 23, 0.82), rgba(15, 23, 42, 0.28)),
+            url("https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1400&q=80") center/cover;
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        box-shadow: 0 22px 55px rgba(2, 6, 23, 0.38);
+        display: flex;
+        align-items: end;
+    }
+
+    .hero-banner::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(circle at top right, rgba(56, 189, 248, 0.22), transparent 28%),
+            linear-gradient(180deg, rgba(2, 6, 23, 0.12), rgba(2, 6, 23, 0.78));
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+        padding: 30px;
+        max-width: 620px;
+    }
+
+    .hero-kicker {
+        display: inline-block;
+        margin-bottom: 12px;
+        font-size: 12px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #7dd3fc;
+    }
+
+    .hero-title {
+        margin: 0;
+        font-size: 38px;
+        font-weight: 800;
+        color: #f8fafc;
+    }
+
+    .hero-subtitle {
+        margin: 12px 0 0;
+        color: #cbd5e1;
+        line-height: 1.7;
+        max-width: 540px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .stat-card {
+        position: relative;
+        overflow: hidden;
+        padding: 22px;
+        border-radius: 24px;
+        background: rgba(15, 23, 42, 0.88);
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        box-shadow: 0 16px 34px rgba(2, 6, 23, 0.24);
+    }
+
+    .stat-card::after {
+        content: "";
+        position: absolute;
+        right: -18px;
+        bottom: -36px;
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        background: currentColor;
+        opacity: 0.14;
+    }
+
+    .stat-card small {
+        display: block;
+        margin-bottom: 10px;
+        color: #94a3b8;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .stat-card h3 {
+        margin: 0;
+        color: #f8fafc;
+        font-size: 29px;
+        font-weight: 800;
+    }
+
+    .stat-income {
+        color: #22c55e;
+    }
+
+    .stat-expense {
+        color: #f97316;
+    }
+
+    .stat-balance {
+        color: #38bdf8;
+    }
+
+    .dashboard-panels {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 22px;
+    }
+
+    .budget-alert {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 180px;
+        gap: 18px;
+        align-items: center;
+        padding: 22px 24px;
+        border-radius: 24px;
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        box-shadow: 0 16px 36px rgba(2, 6, 23, 0.26);
+    }
+
+    .budget-alert.safe {
+        background: linear-gradient(135deg, rgba(20, 83, 45, 0.88), rgba(15, 23, 42, 0.88));
+    }
+
+    .budget-alert.warning {
+        background: linear-gradient(135deg, rgba(133, 77, 14, 0.9), rgba(15, 23, 42, 0.88));
+    }
+
+    .budget-alert.danger {
+        background: linear-gradient(135deg, rgba(127, 29, 29, 0.92), rgba(15, 23, 42, 0.88));
+    }
+
+    .budget-alert h2 {
+        margin: 0 0 8px;
+        color: #f8fafc;
+        font-size: 24px;
+    }
+
+    .budget-alert p {
+        margin: 0;
+        color: #dbeafe;
+        line-height: 1.6;
+    }
+
+    .budget-metrics {
+        display: grid;
+        gap: 8px;
+    }
+
+    .budget-metrics span {
+        color: #bfdbfe;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .budget-metrics strong {
+        color: #f8fafc;
+        font-size: 20px;
+    }
+
+    .chart-grid {
+        display: grid;
+        grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.1fr);
+        gap: 22px;
+    }
+
+    .panel-card {
+        padding: 24px;
+        border-radius: 26px;
+        background: rgba(15, 23, 42, 0.88);
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        box-shadow: 0 16px 36px rgba(2, 6, 23, 0.26);
+    }
+
+    .panel-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 18px;
+    }
+
+    .panel-title {
+        margin: 0;
+        color: #f8fafc;
+        font-size: 24px;
+    }
+
+    .panel-subtitle {
+        margin: 6px 0 0;
+        color: #94a3b8;
+    }
+
+    .mini-link {
+        color: #7dd3fc;
+        text-decoration: none;
+        font-weight: 700;
+    }
+
+    .recent-list,
+    .recent-item {
+        display: grid;
+        gap: 12px;
+        padding: 18px;
+        border-radius: 20px;
+        background: rgba(30, 41, 59, 0.66);
+        border: 1px solid rgba(148, 163, 184, 0.1);
+    }
+
+    .recent-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: start;
+    }
+
+    .recent-title {
+        margin: 0;
+        color: #f8fafc;
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .recent-meta {
+        color: #94a3b8;
+        font-size: 14px;
+    }
+
+    .amount-chip {
+        padding: 10px 14px;
+        border-radius: 999px;
+        font-weight: 800;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    .amount-chip.income {
+        background: rgba(34, 197, 94, 0.16);
+        color: #86efac;
+    }
+
+    .amount-chip.expense {
+        background: rgba(249, 115, 22, 0.16);
+        color: #fdba74;
+    }
+
+    .recent-description {
+        margin: 0;
+        color: #cbd5e1;
+        line-height: 1.6;
+    }
+
+    .empty-state {
+        padding: 26px;
+        text-align: center;
+        border-radius: 22px;
+        border: 1px dashed rgba(148, 163, 184, 0.2);
+        background: rgba(30, 41, 59, 0.46);
+        color: #94a3b8;
+    }
+
+    .chart-card {
+        min-height: 380px;
+    }
+
+    .chart-wrap {
+        position: relative;
+        height: 280px;
+    }
+
+    @media (max-width: 1100px) {
+        .dashboard-hero,
+        .chart-grid,
+        .dashboard-panels,
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .budget-alert {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .hero-title {
+            font-size: 30px;
+        }
+
+        .hero-content {
+            padding: 24px;
+        }
+
+        .panel-top,
+        .recent-head {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="dashboard-shell">
+    <section class="dashboard-hero">
+        <article class="hero-banner">
+            <div class="hero-content">
+                <span class="hero-kicker">Financial Command Center</span>
+                <h1 class="hero-title">Welcome back, {{ request.user.username }}</h1>
+                <p class="hero-subtitle">
+                    Track where your money is going, how much is growing, and which goals are getting closer this month.
+                </p>
+
+            </div>
+        </article>
+
+    </section>
+
+    <section class="stats-grid">
+        <article class="stat-card stat-income">
+            <small>Total Income</small>
+            <h3>&#8377;{{ total_income }}</h3>
+        </article>
+
+        <article class="stat-card stat-expense">
+            <small>Total Expenses</small>
+            <h3>&#8377;{{ total_expenses }}</h3>
+        </article>
+
+        <article class="stat-card stat-balance">
+            <small>Net Balance</small>
+            <h3>&#8377;{{ net_savings }}</h3>
+        </article>
+
+    </section>
+
+    {% if budget_alert %}
+    <section class="budget-alert {{ budget_alert.status }}">
+        <div>
+            <h2>{{ budget_alert.title }}</h2>
+            <p>{{ budget_alert.message }}</p>
+        </div>
+        <div class="budget-metrics">
+            <span>Budget / Spent</span>
+            <strong>&#8377;{{ budget_alert.budget }} / &#8377;{{ budget_alert.expense }}</strong>
+        </div>
+    </section>
+    {% endif %}
+
+    <section class="chart-grid">
+        <article class="panel-card chart-card">
+            <div class="panel-top">
+                <div>
+                    <h2 class="panel-title">Income vs Expenses</h2>
+                    <p class="panel-subtitle">A quick chart of the two biggest money flows.</p>
+                </div>
+            </div>
+
+            <div class="chart-wrap">
+                <canvas id="incomeExpenseChart"></canvas>
+            </div>
+        </article>
+
+        <article class="panel-card chart-card">
+            <div class="panel-top">
+                <div>
+                    <h2 class="panel-title">Expense by Category</h2>
+                    <p class="panel-subtitle">See which categories are taking the most money.</p>
+                </div>
+            </div>
+
+            {% if category_labels %}
+            <div class="chart-wrap">
+                <canvas id="categoryChart"></canvas>
+            </div>
+            {% else %}
+            <div class="empty-state">Add some expense transactions to generate a category chart.</div>
+            {% endif %}
+        </article>
+    </section>
+
+    <section class="dashboard-panels">
+        <article class="panel-card">
+            <div class="panel-top">
+                <div>
+                    <h2 class="panel-title">Recent Transactions</h2>
+                    <p class="panel-subtitle">Your latest income and expense activity.</p>
+                </div>
+                <a href="{% url 'transaction_list' %}" class="mini-link">View all</a>
+            </div>
+
+            {% with recent_transactions=transactions|slice:":4" %}
+            {% if recent_transactions %}
+            <div class="recent-list">
+                {% for transaction in recent_transactions %}
+                <div class="recent-item">
+                    <div class="recent-head">
+                        <div>
+                            <h3 class="recent-title">{{ transaction.title }}</h3>
+                            <div class="recent-meta">{{ transaction.category }} • {{ transaction.date }}</div>
+                        </div>
+
+                        <div class="amount-chip {% if transaction.transaction_type == 'income' %}income{% else %}expense{% endif %}">
+                            {% if transaction.transaction_type == "income" %}+{% else %}-{% endif %}
+                            &#8377;{{ transaction.amount|floatformat:2 }}
+                        </div>
+                    </div>
+
+                    <p class="recent-description">
+                        {% if transaction.description %}
+                        {{ transaction.description }}
+                        {% else %}
+                        No description was added for this transaction.
+                        {% endif %}
+                    </p>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">No transactions yet. Add one to start shaping your dashboard.</div>
+            {% endif %}
+            {% endwith %}
+        </article>
+
+    </section>
+</div>
+
+{{ income_expense_labels|json_script:"income-expense-labels" }}
+{{ income_expense_values|json_script:"income-expense-values" }}
+{{ category_labels|json_script:"category-labels" }}
+{{ category_totals|json_script:"category-totals" }}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const incomeExpenseLabels = JSON.parse(document.getElementById('income-expense-labels').textContent);
+    const incomeExpenseValues = JSON.parse(document.getElementById('income-expense-values').textContent);
+    const categoryLabels = JSON.parse(document.getElementById('category-labels').textContent);
+    const categoryTotals = JSON.parse(document.getElementById('category-totals').textContent);
+
+    const sharedTooltip = {
+        callbacks: {
+            label(context) {
+                return `Rs ${context.raw}`;
+            }
+        }
+    };
+
+    new Chart(document.getElementById('incomeExpenseChart'), {
+        type: 'doughnut',
+        data: {
+            labels: incomeExpenseLabels,
+            datasets: [{
+                data: incomeExpenseValues,
+                backgroundColor: ['#22c55e', '#f97316'],
+                borderColor: ['#14532d', '#7c2d12'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#e5e7eb'
+                    }
+                },
+                tooltip: sharedTooltip
+            }
+        }
+    });
+
+    if (categoryLabels.length) {
+        new Chart(document.getElementById('categoryChart'), {
+            type: 'bar',
+            data: {
+                labels: categoryLabels,
+                datasets: [{
+                    label: 'Expenses',
+                    data: categoryTotals,
+                    backgroundColor: ['#38bdf8', '#818cf8', '#facc15', '#fb7185', '#34d399', '#f97316'],
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#cbd5e1'
+                        },
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: '#cbd5e1',
+                            callback(value) {
+                                return `Rs ${value}`;
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(148, 163, 184, 0.12)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: sharedTooltip
+                }
+            }
+        });
+    }
+</script>
+
+{% endblock %}

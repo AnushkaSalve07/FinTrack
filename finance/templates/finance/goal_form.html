@@ -1,0 +1,570 @@
+{% extends 'finance/base.html' %}
+{% block title %}Add Goal{% endblock %}
+
+{% block content %}
+
+<style>
+    .goal-shell {
+        display: grid;
+        gap: 24px;
+        max-width: 920px;
+        margin: 0 auto;
+    }
+
+    .goal-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 22px 24px;
+        border-radius: 24px;
+        background:
+            linear-gradient(135deg, rgba(15, 23, 42, 0.84), rgba(30, 41, 59, 0.72)),
+            url("https://images.unsplash.com/photo-1518458028785-8fbcd101ebb9?auto=format&fit=crop&w=1400&q=80") center/cover,
+            radial-gradient(circle at top right, rgba(250, 204, 21, 0.20), transparent 26%),
+            linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.9));
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        box-shadow: 0 18px 45px rgba(2, 6, 23, 0.35);
+    }
+
+    .goal-kicker {
+        margin-bottom: 8px;
+        font-size: 12px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #fde68a;
+    }
+
+    .goal-title {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+        color: #f8fafc;
+    }
+
+    .goal-sub {
+        margin: 10px 0 0;
+        max-width: 640px;
+        line-height: 1.6;
+        color: #94a3b8;
+    }
+
+    .goal-card {
+        padding: 22px;
+        border-radius: 22px;
+        background: rgba(15, 23, 42, 0.86);
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        box-shadow: 0 18px 45px rgba(2, 6, 23, 0.28);
+    }
+
+    .goal-card + .goal-card {
+        margin-top: 0;
+    }
+
+    .section-title {
+        margin: 0 0 8px;
+        color: #f8fafc;
+        font-size: 24px;
+    }
+
+    .section-subtitle {
+        margin: 0 0 18px;
+        color: #94a3b8;
+        line-height: 1.6;
+    }
+
+    .goal-helper-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 14px;
+        margin-bottom: 18px;
+    }
+
+    .goal-photo-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        margin-bottom: 18px;
+    }
+
+    .goal-photo-card {
+        min-height: 150px;
+        border-radius: 20px;
+        overflow: hidden;
+        position: relative;
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        box-shadow: 0 16px 32px rgba(2, 6, 23, 0.22);
+        background-size: cover;
+        background-position: center;
+    }
+
+    .goal-photo-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.12), rgba(15, 23, 42, 0.82));
+    }
+
+    .goal-photo-card span {
+        position: absolute;
+        left: 16px;
+        bottom: 16px;
+        z-index: 1;
+        color: #f8fafc;
+        font-weight: 700;
+    }
+
+    .goal-helper-card {
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: rgba(30, 41, 59, 0.58);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .goal-helper-card strong {
+        display: block;
+        margin-bottom: 6px;
+        color: #f8fafc;
+    }
+
+    .goal-helper-card p {
+        margin: 0;
+        color: #94a3b8;
+        line-height: 1.5;
+    }
+
+    .goal-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .goal-panel {
+        padding: 14px;
+        border-radius: 18px;
+        background: rgba(30, 41, 59, 0.6);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .goal-panel.full {
+        grid-column: 1 / -1;
+    }
+
+    .goal-label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: #cbd5e1;
+    }
+
+    .goal-panel input {
+        width: 100%;
+        border-radius: 16px;
+        padding: 11px 14px;
+        background: rgba(2, 6, 23, 0.88);
+        color: #f8fafc;
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        outline: none;
+        box-shadow: none;
+        color-scheme: dark;
+    }
+
+    .goal-panel input:focus {
+        border-color: rgba(250, 204, 21, 0.7);
+        box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.12);
+    }
+
+    .goal-panel input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: brightness(0) invert(1);
+        opacity: 1;
+        cursor: pointer;
+    }
+
+    .amount-box {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 4px 8px 4px 12px;
+        border-radius: 16px;
+        background: rgba(2, 6, 23, 0.88);
+        border: 1px solid rgba(148, 163, 184, 0.16);
+    }
+
+    .amount-box span {
+        font-size: 20px;
+        font-weight: 700;
+        color: #fde68a;
+    }
+
+    .amount-box input {
+        border: none;
+        background: transparent;
+        padding-left: 0;
+        box-shadow: none;
+    }
+
+    .amount-box:focus-within {
+        border-color: rgba(250, 204, 21, 0.7);
+        box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.12);
+    }
+
+    .goal-btn {
+        margin-top: 18px;
+        border: none;
+        border-radius: 16px;
+        padding: 12px 18px;
+        font-weight: 700;
+        color: #172554;
+        background: linear-gradient(135deg, #facc15, #f59e0b);
+        box-shadow: 0 16px 28px rgba(245, 158, 11, 0.24);
+    }
+
+    .goal-btn.secondary {
+        color: #eff6ff;
+        background: linear-gradient(135deg, #0f766e, #2563eb);
+        box-shadow: 0 16px 28px rgba(37, 99, 235, 0.2);
+    }
+
+    .error-list {
+        margin: 0 0 18px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: rgba(127, 29, 29, 0.35);
+        border: 1px solid rgba(248, 113, 113, 0.28);
+        color: #fecaca;
+    }
+
+    .history-shell {
+        display: grid;
+        gap: 16px;
+    }
+
+    .history-card {
+        padding: 18px;
+        border-radius: 20px;
+        background: rgba(30, 41, 59, 0.58);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .history-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        gap: 16px;
+        margin-bottom: 14px;
+    }
+
+    .history-head h3 {
+        margin: 0;
+        color: #f8fafc;
+        font-size: 20px;
+    }
+
+    .history-meta {
+        margin-top: 6px;
+        color: #94a3b8;
+        font-size: 14px;
+    }
+
+    .history-progress {
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: rgba(56, 189, 248, 0.16);
+        color: #bae6fd;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .history-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+    .history-summary-item {
+        padding: 14px;
+        border-radius: 16px;
+        background: rgba(2, 6, 23, 0.82);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .history-summary-item span {
+        display: block;
+        margin-bottom: 6px;
+        color: #94a3b8;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .history-summary-item strong {
+        color: #f8fafc;
+        font-size: 18px;
+    }
+
+    .history-list {
+        display: grid;
+        gap: 10px;
+    }
+
+    .history-entry {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        gap: 12px;
+        padding: 14px;
+        border-radius: 16px;
+        background: rgba(15, 23, 42, 0.76);
+        border: 1px solid rgba(148, 163, 184, 0.1);
+    }
+
+    .history-entry strong {
+        display: block;
+        color: #fef3c7;
+        font-size: 17px;
+    }
+
+    .history-entry span,
+    .history-entry p {
+        color: #cbd5e1;
+        margin: 4px 0 0;
+    }
+
+    .history-empty {
+        padding: 18px;
+        border-radius: 16px;
+        border: 1px dashed rgba(148, 163, 184, 0.18);
+        color: #94a3b8;
+        background: rgba(15, 23, 42, 0.5);
+    }
+
+    @media (max-width: 768px) {
+        .goal-title {
+            font-size: 24px;
+        }
+
+        .goal-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .goal-panel.full {
+            grid-column: auto;
+        }
+
+        .goal-photo-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .history-head,
+        .history-entry {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="goal-shell">
+    <section class="goal-hero">
+        <div class="goal-kicker">Savings Target</div>
+        <h1 class="goal-title">Add a Goal</h1>
+        <p class="goal-sub">
+            Set a clear target, track what you have already saved, and manually add goals that are already ongoing.
+        </p>
+    </section>
+
+    <section class="goal-card">
+        <h2 class="section-title">Create a New Goal</h2>
+        <p class="section-subtitle">
+            Use this when you want to start a fresh savings goal with its own target, dates, and optional initial saved amount.
+        </p>
+
+        <div class="goal-photo-grid">
+            <article class="goal-photo-card" style="background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80');">
+                <span>Plan your next milestone</span>
+            </article>
+            <article class="goal-photo-card" style="background-image: url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80');">
+                <span>Turn savings into a target</span>
+            </article>
+        </div>
+
+        <div class="goal-helper-grid">
+            <article class="goal-helper-card">
+                <strong>Target Amount</strong>
+                <p>The total amount you want to reach for this goal.</p>
+            </article>
+            <article class="goal-helper-card">
+                <strong>Saved Amount</strong>
+                <p>How much you have already set aside toward this target.</p>
+            </article>
+            <article class="goal-helper-card">
+                <strong>Started On</strong>
+                <p>Use a past date if this goal is already in progress and you are adding it manually now.</p>
+            </article>
+            <article class="goal-helper-card">
+                <strong>Saved On</strong>
+                <p>Record the exact date when this saved amount was last updated.</p>
+            </article>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="create_goal">
+
+            {% if create_form.errors %}
+            <div class="error-list">
+                Please fix the highlighted fields and submit the form again.
+            </div>
+            {% endif %}
+
+            <div class="goal-grid">
+                <div class="goal-panel full">
+                    <label class="goal-label">Goal Name</label>
+                    {{ create_form.title }}
+                </div>
+
+                <div class="goal-panel">
+                    <label class="goal-label">Target Amount</label>
+                    <div class="amount-box">
+                        <span>&#8377;</span>
+                        {{ create_form.target_amount }}
+                    </div>
+                </div>
+
+                <div class="goal-panel">
+                    <label class="goal-label">Saved Amount</label>
+                    <div class="amount-box">
+                        <span>&#8377;</span>
+                        {{ create_form.current_amount }}
+                    </div>
+                </div>
+
+                <div class="goal-panel">
+                    <label class="goal-label">Started On</label>
+                    {{ create_form.started_on }}
+                </div>
+
+                <div class="goal-panel">
+                    <label class="goal-label">Saved On</label>
+                    {{ create_form.saved_on }}
+                </div>
+
+                <div class="goal-panel">
+                    <label class="goal-label">Deadline</label>
+                    {{ create_form.deadline }}
+                </div>
+            </div>
+
+            <button type="submit" class="goal-btn">Create New Goal</button>
+        </form>
+    </section>
+
+    <section class="goal-card">
+        <h2 class="section-title">Save Ongoing Goal</h2>
+        <p class="section-subtitle">
+            Pick an existing goal, add a new saved amount record, and keep a clean history of each update with its exact date.
+        </p>
+
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="ongoing_goal">
+
+            {% if ongoing_form.errors %}
+            <div class="error-list">
+                Please fix the highlighted fields and submit the ongoing goal record again.
+            </div>
+            {% endif %}
+
+            <div class="goal-grid">
+                <div class="goal-panel full">
+                    <label class="goal-label">Choose Goal</label>
+                    {{ ongoing_form.goal }}
+                </div>
+
+                <div class="goal-panel">
+                    <label class="goal-label">Add Saved Amount</label>
+                    <div class="amount-box">
+                        <span>&#8377;</span>
+                        {{ ongoing_form.amount }}
+                    </div>
+                </div>
+
+                <div class="goal-panel">
+                    <label class="goal-label">Record Date</label>
+                    {{ ongoing_form.saved_on }}
+                </div>
+
+                <div class="goal-panel full">
+                    <label class="goal-label">Note</label>
+                    {{ ongoing_form.note }}
+                </div>
+            </div>
+
+            <button type="submit" class="goal-btn secondary">Save Ongoing Goal</button>
+        </form>
+    </section>
+
+    <section class="goal-card">
+        <h2 class="section-title">Goal History</h2>
+        <p class="section-subtitle">
+            Every ongoing update is saved here, so you can see how each goal grew over time.
+        </p>
+
+        {% if goal_cards %}
+        <div class="history-shell">
+            {% for item in goal_cards %}
+            <article class="history-card">
+                <div class="history-head">
+                    <div>
+                        <h3>{{ item.goal.title }}</h3>
+                        <div class="history-meta">Started {{ item.goal.started_on|date:"F j, Y" }} • Deadline {{ item.goal.deadline|date:"F j, Y" }}</div>
+                    </div>
+                    <div class="history-progress">{{ item.progress|floatformat:0 }}%</div>
+                </div>
+
+                <div class="history-summary">
+                    <div class="history-summary-item">
+                        <span>Saved</span>
+                        <strong>&#8377;{{ item.goal.current_amount|floatformat:2 }}</strong>
+                    </div>
+                    <div class="history-summary-item">
+                        <span>Target</span>
+                        <strong>&#8377;{{ item.goal.target_amount|floatformat:2 }}</strong>
+                    </div>
+                    <div class="history-summary-item">
+                        <span>Last Update</span>
+                        <strong>{{ item.goal.saved_on|date:"F j, Y" }}</strong>
+                    </div>
+                </div>
+
+                {% if item.history %}
+                <div class="history-list">
+                    {% for entry in item.history %}
+                    <div class="history-entry">
+                        <div>
+                            <strong>&#8377;{{ entry.amount|floatformat:2 }}</strong>
+                            <span>{{ entry.saved_on|date:"F j, Y" }}</span>
+                        </div>
+                        <div>
+                            {% if entry.note %}
+                            <p>{{ entry.note }}</p>
+                            {% else %}
+                            <p>No note added for this record.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="history-empty">No saved history records yet for this goal.</div>
+                {% endif %}
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="history-empty">No goals yet. Create a goal first, then add ongoing records here.</div>
+        {% endif %}
+    </section>
+</div>
+
+{% endblock %}

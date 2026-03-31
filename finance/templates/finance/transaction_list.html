@@ -1,0 +1,673 @@
+{% extends 'finance/base.html' %}
+{% block title %}Transaction List{% endblock %}
+
+{% block content %}
+
+<style>
+    .transaction-shell {
+        display: grid;
+        gap: 24px;
+    }
+
+    .transaction-hero {
+        position: relative;
+        overflow: visible;
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 16px;
+        padding: 28px;
+        padding-bottom: 44px;
+        min-height: 170px;
+        border-radius: 24px;
+        background:
+            linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.72)),
+            url("https://images.unsplash.com/photo-1556740749-887f6717d7e4?auto=format&fit=crop&w=1400&q=80") center/cover,
+            radial-gradient(circle at top right, rgba(34, 197, 94, 0.22), transparent 28%),
+            linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.94));
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        box-shadow: 0 20px 50px rgba(2, 6, 23, 0.35);
+    }
+
+    .transaction-kicker {
+        margin-bottom: 8px;
+        font-size: 12px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #93c5fd;
+    }
+
+    .transaction-title {
+        margin: 0;
+        font-size: 32px;
+        font-weight: 700;
+        color: #f8fafc;
+    }
+
+    .transaction-subtitle {
+        margin: 8px 0 0;
+        color: #94a3b8;
+    }
+
+    .report-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 18px;
+        border-radius: 14px;
+        text-decoration: none;
+        color: #eff6ff;
+        font-weight: 600;
+        background: linear-gradient(135deg, #2563eb, #0f766e);
+        box-shadow: 0 14px 28px rgba(37, 99, 235, 0.28);
+    }
+
+    .hero-actions {
+        position: relative;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .history-wrap {
+        position: relative;
+    }
+
+    .history-btn {
+        border: 0;
+        cursor: pointer;
+    }
+
+    .history-btn::after {
+        content: "▾";
+        margin-left: 8px;
+        font-size: 12px;
+    }
+
+    .history-dropdown {
+        position: absolute;
+        top: calc(100% + 12px);
+        right: 0;
+        width: min(92vw, 430px);
+        padding: 18px;
+        border-radius: 20px;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        background: rgba(15, 23, 42, 0.96);
+        box-shadow: 0 20px 45px rgba(2, 6, 23, 0.36);
+        backdrop-filter: blur(12px);
+        z-index: 20;
+    }
+
+    .history-dropdown[hidden] {
+        display: none;
+    }
+
+    .history-header {
+        margin-bottom: 14px;
+    }
+
+    .history-header strong {
+        display: block;
+        color: #f8fafc;
+        font-size: 18px;
+    }
+
+    .history-header span {
+        color: #94a3b8;
+        font-size: 14px;
+    }
+
+    .history-group + .history-group {
+        margin-top: 16px;
+    }
+
+    .history-group-title {
+        display: block;
+        margin-bottom: 10px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #cbd5e1;
+    }
+
+    .history-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .history-action {
+        padding: 10px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        background: rgba(30, 41, 59, 0.88);
+        color: #e2e8f0;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .history-action[data-type="income"] {
+        color: #86efac;
+    }
+
+    .history-action[data-type="expense"] {
+        color: #fca5a5;
+    }
+
+    .picker-panel {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .picker-panel[hidden] {
+        display: none;
+    }
+
+    .picker-title {
+        margin: 0 0 10px;
+        color: #f8fafc;
+        font-size: 16px;
+    }
+
+    .picker-form {
+        display: grid;
+        gap: 10px;
+    }
+
+    .picker-input {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 14px;
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        background: rgba(15, 23, 42, 0.88);
+        color: #f8fafc;
+    }
+
+    .picker-submit,
+    .picker-clear {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 11px 16px;
+        border-radius: 14px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .picker-submit {
+        border: 0;
+        background: linear-gradient(135deg, #2563eb, #0891b2);
+        color: #eff6ff;
+        cursor: pointer;
+    }
+
+    .picker-clear {
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        color: #cbd5e1;
+        background: rgba(30, 41, 59, 0.82);
+    }
+
+    .active-history {
+        padding: 14px 18px;
+        border-radius: 18px;
+        background: rgba(15, 23, 42, 0.82);
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        color: #cbd5e1;
+    }
+
+    .active-history strong {
+        color: #f8fafc;
+    }
+
+    .summary-strip {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+    }
+
+
+    .visual-strip {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .visual-card {
+        min-height: 170px;
+        border-radius: 22px;
+        overflow: hidden;
+        position: relative;
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        box-shadow: 0 16px 36px rgba(2, 6, 23, 0.28);
+        background-size: cover;
+        background-position: center;
+    }
+
+    .visual-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.08), rgba(15, 23, 42, 0.82));
+    }
+
+    .visual-card div {
+        position: absolute;
+        left: 20px;
+        right: 20px;
+        bottom: 18px;
+        z-index: 1;
+    }
+
+    .visual-card strong {
+        display: block;
+        margin-bottom: 6px;
+        color: #f8fafc;
+        font-size: 20px;
+    }
+
+    .visual-card span {
+        color: #cbd5e1;
+    }
+
+    .summary-card {
+        padding: 18px 20px;
+        border-radius: 18px;
+        background: rgba(15, 23, 42, 0.82);
+        border: 1px solid rgba(148, 163, 184, 0.16);
+    }
+
+    .summary-label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #94a3b8;
+    }
+
+    .summary-value {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: #f8fafc;
+    }
+
+    .transaction-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 18px;
+    }
+
+    .transaction-card {
+        padding: 22px;
+        border-radius: 22px;
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.78));
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        box-shadow: 0 16px 36px rgba(2, 6, 23, 0.28);
+    }
+
+    .transaction-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        gap: 16px;
+        margin-bottom: 18px;
+    }
+
+    .transaction-card h3 {
+        margin: 0 0 6px;
+        font-size: 20px;
+        color: #f8fafc;
+    }
+
+    .transaction-date {
+        color: #94a3b8;
+        font-size: 14px;
+    }
+
+    .amount-pill {
+        padding: 10px 14px;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 15px;
+        white-space: nowrap;
+    }
+
+    .amount-income {
+        background: rgba(34, 197, 94, 0.16);
+        color: #86efac;
+    }
+
+    .amount-expense {
+        background: rgba(248, 113, 113, 0.16);
+        color: #fca5a5;
+    }
+
+    .transaction-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+    .meta-chip {
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        background: rgba(30, 41, 59, 0.95);
+        color: #cbd5e1;
+        border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .meta-chip.income {
+        color: #86efac;
+        border-color: rgba(34, 197, 94, 0.22);
+    }
+
+    .meta-chip.expense {
+        color: #fca5a5;
+        border-color: rgba(248, 113, 113, 0.22);
+    }
+
+    .transaction-description {
+        margin: 0;
+        line-height: 1.6;
+        color: #cbd5e1;
+    }
+
+    .empty-state {
+        padding: 40px 28px;
+        border-radius: 24px;
+        text-align: center;
+        background: rgba(15, 23, 42, 0.82);
+        border: 1px dashed rgba(148, 163, 184, 0.22);
+    }
+
+    .empty-state h3 {
+        margin-bottom: 10px;
+        color: #f8fafc;
+    }
+
+    .empty-state p {
+        margin: 0;
+        color: #94a3b8;
+    }
+
+    @media (max-width: 768px) {
+        .transaction-hero {
+            align-items: start;
+            flex-direction: column;
+            min-height: auto;
+            padding-bottom: 28px;
+        }
+
+        .hero-actions {
+            width: 100%;
+        }
+
+        .history-wrap {
+            width: 100%;
+        }
+
+        .history-dropdown {
+            position: static;
+            width: 100%;
+            margin-top: 12px;
+        }
+
+        .transaction-title {
+            font-size: 26px;
+        }
+
+        .transaction-card-top {
+            flex-direction: column;
+        }
+
+        .visual-strip {
+            grid-template-columns: 1fr;
+        }
+
+    }
+</style>
+
+<div class="transaction-shell">
+    <section class="transaction-hero">
+        <div>
+            <div class="transaction-kicker">Spending Timeline</div>
+            <h1 class="transaction-title">Your Transactions</h1>
+            <p class="transaction-subtitle">A cleaner view of every income and expense entry.</p>
+        </div>
+
+        <div class="hero-actions">
+            <a href="{% url 'export_transactions' %}" class="report-btn">Generate Report</a>
+
+            <div class="history-wrap" id="historyWrap">
+                <button type="button" class="report-btn history-btn" id="historyToggle" aria-expanded="false" aria-controls="historyDropdown">
+                    History
+                </button>
+
+                <div class="history-dropdown" id="historyDropdown" hidden>
+                    <div class="history-header">
+                        <strong>Transaction History</strong>
+                        <span>Choose income or expense, then open the week, month, or year calendar.</span>
+                    </div>
+
+                    <div class="history-group">
+                        <span class="history-group-title">Income</span>
+                        <div class="history-actions">
+                            <button type="button" class="history-action" data-type="income" data-period="weekly">Weekly</button>
+                            <button type="button" class="history-action" data-type="income" data-period="monthly">Monthly</button>
+                            <button type="button" class="history-action" data-type="income" data-period="yearly">Yearly</button>
+                        </div>
+                    </div>
+
+                    <div class="history-group">
+                        <span class="history-group-title">Expenses</span>
+                        <div class="history-actions">
+                            <button type="button" class="history-action" data-type="expense" data-period="weekly">Weekly</button>
+                            <button type="button" class="history-action" data-type="expense" data-period="monthly">Monthly</button>
+                            <button type="button" class="history-action" data-type="expense" data-period="yearly">Yearly</button>
+                        </div>
+                    </div>
+
+                    <div class="picker-panel" id="pickerPanel" hidden>
+                        <h3 class="picker-title" id="pickerTitle">Select a period</h3>
+                        <form method="get" class="picker-form">
+                            {% if search_query %}
+                            <input type="hidden" name="q" value="{{ search_query }}">
+                            {% endif %}
+                            <input type="hidden" name="history_type" id="historyTypeField" value="{{ history_type }}">
+                            <input type="hidden" name="history_period" id="historyPeriodField" value="{{ history_period }}">
+                            <input
+                                class="picker-input"
+                                id="historyValueField"
+                                name="history_value"
+                                value="{{ history_value }}"
+                                inputmode="numeric"
+                                pattern="[0-9]*"
+                            >
+                            <button type="submit" class="picker-submit">Show Records</button>
+                            <a href="{% url 'transaction_list' %}" class="picker-clear">Clear History Filter</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {% if history_type and history_period and history_value %}
+    <section class="active-history">
+        <strong>Showing {{ history_type|title }}</strong> records for <strong>{{ history_period|title }}</strong> selection: {{ history_value }}
+    </section>
+    {% endif %}
+
+    <section class="summary-strip">
+        <article class="summary-card">
+            <span class="summary-label">Records</span>
+            <p class="summary-value">{{ transactions|length }}</p>
+        </article>
+        <article class="summary-card">
+            <span class="summary-label">Latest Entry</span>
+            <p class="summary-value">
+                {% if transactions %}
+                {{ transactions.0.date }}
+                {% else %}
+                None
+                {% endif %}
+            </p>
+        </article>
+    </section>
+
+    <section class="visual-strip">
+        <article class="visual-card" style="background-image: url('https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1400&q=80');">
+            <div>
+                <strong>Spending Story</strong>
+                <span>See your money movement in a clearer visual layout.</span>
+            </div>
+        </article>
+        <article class="visual-card" style="background-image: url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=1400&q=80');">
+            <div>
+                <strong>Income vs Expense</strong>
+                <span>Review each entry faster without relying on a plain table.</span>
+            </div>
+        </article>
+    </section>
+
+    {% if transactions %}
+    <section class="transaction-grid">
+        {% for transaction in transactions %}
+        <article class="transaction-card">
+            <div class="transaction-card-top">
+                <div>
+                    <h3>{{ transaction.title }}</h3>
+                    <div class="transaction-date">{{ transaction.date }}</div>
+                </div>
+
+                <div class="amount-pill {% if transaction.transaction_type == 'income' %}amount-income{% else %}amount-expense{% endif %}">
+                    {% if transaction.transaction_type == "income" %}+{% else %}-{% endif %}
+                    &#8377;{{ transaction.amount|floatformat:2 }}
+                </div>
+            </div>
+
+            <div class="transaction-meta">
+                <span class="meta-chip">{{ transaction.category }}</span>
+                <span class="meta-chip {% if transaction.transaction_type == 'income' %}income{% else %}expense{% endif %}">
+                    {% if transaction.transaction_type == "income" %}Income{% else %}Expense{% endif %}
+                </span>
+                <span class="meta-chip">ID {{ transaction.id }}</span>
+            </div>
+
+            <p class="transaction-description">
+                {% if transaction.description %}
+                {{ transaction.description }}
+                {% else %}
+                No description added for this transaction.
+                {% endif %}
+            </p>
+        </article>
+        {% endfor %}
+    </section>
+    {% else %}
+    <section class="empty-state">
+        <h3>No transactions yet</h3>
+        <p>Add your first income or expense to start building your timeline.</p>
+    </section>
+    {% endif %}
+</div>
+
+<script>
+    (function () {
+        const historyWrap = document.getElementById("historyWrap");
+        const historyToggle = document.getElementById("historyToggle");
+        const historyDropdown = document.getElementById("historyDropdown");
+        const pickerPanel = document.getElementById("pickerPanel");
+        const pickerTitle = document.getElementById("pickerTitle");
+        const historyTypeField = document.getElementById("historyTypeField");
+        const historyPeriodField = document.getElementById("historyPeriodField");
+        const historyValueField = document.getElementById("historyValueField");
+        const actionButtons = document.querySelectorAll(".history-action");
+
+        if (!historyWrap || !historyToggle || !historyDropdown || !pickerPanel) {
+            return;
+        }
+
+        const inputTypeMap = {
+            weekly: "week",
+            monthly: "month",
+            yearly: "number"
+        };
+
+        function applyInputConfig(period) {
+            historyValueField.type = inputTypeMap[period] || "date";
+            historyValueField.removeAttribute("min");
+            historyValueField.removeAttribute("max");
+            historyValueField.removeAttribute("step");
+            historyValueField.placeholder = "";
+
+            if (period === "yearly") {
+                historyValueField.min = "2000";
+                historyValueField.max = "9999";
+                historyValueField.step = "1";
+                historyValueField.placeholder = "Enter year";
+            }
+        }
+
+        function openDropdown() {
+            historyDropdown.hidden = false;
+            historyToggle.setAttribute("aria-expanded", "true");
+        }
+
+        function closeDropdown() {
+            historyDropdown.hidden = true;
+            historyToggle.setAttribute("aria-expanded", "false");
+        }
+
+        historyToggle.addEventListener("click", function () {
+            if (historyDropdown.hidden) {
+                openDropdown();
+            } else {
+                closeDropdown();
+            }
+        });
+
+        document.addEventListener("click", function (event) {
+            if (!historyWrap.contains(event.target)) {
+                closeDropdown();
+            }
+        });
+
+        actionButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                const transactionType = button.dataset.type;
+                const period = button.dataset.period;
+
+                pickerPanel.hidden = false;
+                historyTypeField.value = transactionType;
+                historyPeriodField.value = period;
+                historyValueField.value = "";
+                applyInputConfig(period);
+                pickerTitle.textContent = "Select " + period.slice(0, -2) + " for " + transactionType;
+
+                if (period !== "yearly" && typeof historyValueField.showPicker === "function") {
+                    historyValueField.showPicker();
+                } else {
+                    historyValueField.focus();
+                }
+            });
+        });
+
+        if (historyTypeField.value && historyPeriodField.value && historyValueField.value) {
+            pickerPanel.hidden = false;
+            applyInputConfig(historyPeriodField.value);
+            pickerTitle.textContent = "Selected " + historyPeriodField.value + " for " + historyTypeField.value;
+        }
+    }());
+</script>
+
+{% endblock content %}

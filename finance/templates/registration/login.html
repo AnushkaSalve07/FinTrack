@@ -1,0 +1,179 @@
+{% extends "finance/auth_base.html" %}
+{% block content %}
+
+
+
+
+<div class="login-card">
+
+    <h2 class="login-title">Finance Tracker</h2>
+    <p class="login-subtitle">Sign in to continue</p>
+
+    {% if form.non_field_errors %}
+    <div class="login-alert" data-login-alert>
+        <span>{{ form.non_field_errors|join:", " }}</span>
+        <button type="button" class="login-alert-close" data-login-alert-close aria-label="Close message">x</button>
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>Username</label>
+            {{ form.username }}
+        </div>
+
+        <div class="form-group">
+            <label>Password</label>
+            <div class="password-field">
+                {{ form.password }}
+                <button type="button" class="password-toggle" data-toggle-password>Show</button>
+            </div>
+        </div>
+
+        <button type="submit" class="login-btn">Login</button>
+
+    </form>
+
+    <div class="extra-links">
+        <p>Don't have an account? <a href="{% url 'register' %}">Register</a></p>
+    </div>
+
+</div>
+
+
+
+
+<style>
+    .login-wrapper {
+        min-height: 85vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .login-card {
+        width: min(100%, 420px);
+        background: white;
+        padding: 40px;
+        border-radius: 18px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    .login-alert {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 18px;
+        padding: 14px 16px;
+        border-radius: 14px;
+        background: rgba(127, 29, 29, 0.35);
+        border: 1px solid rgba(248, 113, 113, 0.28);
+        color: #fecaca;
+        opacity: 0;
+        transform: translateY(-8px);
+        transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    .login-alert.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .login-alert-close {
+        border: none;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        font-size: 14px;
+        line-height: 1;
+        opacity: 0.8;
+    }
+
+    form {
+        display: grid;
+        gap: 18px;
+    }
+
+    .form-group {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .form-group input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px 12px;
+        padding-right: 72px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .password-field {
+        position: relative;
+    }
+
+    .password-toggle {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        border: none;
+        background: transparent;
+        color: #94a3b8;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .login-btn {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 12px;
+        background: #4f46e5;
+        color: white;
+    }
+
+    .extra-links {
+        margin-top: 18px;
+        text-align: center;
+        font-size: 14px;
+    }
+</style>
+
+<script>
+    var loginAlert = document.querySelector('[data-login-alert]');
+    if (loginAlert) {
+        window.setTimeout(function () {
+            loginAlert.classList.add('is-visible');
+        }, 40);
+
+        var closeLoginAlert = loginAlert.querySelector('[data-login-alert-close]');
+        if (closeLoginAlert) {
+            closeLoginAlert.addEventListener('click', function () {
+                loginAlert.remove();
+            });
+        }
+    }
+
+    document.querySelectorAll('[data-toggle-password]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            var input = button.parentElement.querySelector('input');
+            var isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            button.textContent = isPassword ? 'Hide' : 'Show';
+        });
+    });
+</script>
+
+{% endblock %}
